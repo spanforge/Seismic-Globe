@@ -407,6 +407,196 @@ canvas.dragging {
   font-weight: 500;
 }
 
+#insight-panel {
+  position: fixed;
+  left: 14px;
+  top: 182px;
+  z-index: 20;
+  width: min(340px, calc(100vw - 28px));
+  padding: 14px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(6, 18, 38, 0.88), rgba(4, 11, 24, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(18px);
+}
+
+.panel-kicker {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.40);
+}
+
+.panel-title {
+  margin-top: 7px;
+  font-size: 18px;
+  line-height: 1.15;
+  font-weight: 800;
+  color: #f5f9ff;
+}
+
+.panel-copy {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.search-shell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.search-shell input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ecf5ff;
+  font: inherit;
+  font-size: 13px;
+}
+
+.search-shell input::placeholder {
+  color: rgba(255, 255, 255, 0.32);
+}
+
+.mini-btn {
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.82);
+  min-width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.panel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.panel-stat {
+  padding: 11px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.panel-stat-label {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.36);
+}
+
+.panel-stat-value {
+  margin-top: 5px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #dcebff;
+}
+
+.spotlight-card {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top right, rgba(72, 159, 255, 0.18), transparent 28%),
+    rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.spotlight-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.spotlight-mag {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.spotlight-type {
+  font-size: 10px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.spotlight-place {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #e8f1ff;
+}
+
+.spotlight-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.spotlight-pill {
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 11px;
+  color: #d6e8ff;
+}
+
+.panel-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.panel-action {
+  flex: 1;
+  min-height: 40px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.86);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.panel-action.primary {
+  background: linear-gradient(180deg, rgba(68, 153, 238, 0.26), rgba(68, 153, 238, 0.14));
+  border-color: rgba(110, 180, 255, 0.28);
+}
+
+.panel-action:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.panel-footnote {
+  margin-top: 12px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.46);
+}
+
 #recent-btn {
   position: fixed;
   right: 14px;
@@ -780,6 +970,14 @@ canvas.dragging {
     transform: none;
   }
 
+  #insight-panel {
+    top: auto;
+    left: 14px;
+    right: 14px;
+    bottom: 224px;
+    width: auto;
+  }
+
   #legend {
     display: none;
   }
@@ -796,10 +994,12 @@ canvas.dragging {
     max-height: min(78vh, 680px);
   }
 
+  .panel-grid,
   .ic-grid {
     grid-template-columns: 1fr;
   }
 
+  .panel-actions,
   .ic-actions {
     flex-direction: column;
   }
@@ -869,6 +1069,45 @@ canvas.dragging {
 </div>
 
 <div id="alert-badge"></div>
+
+<div id="insight-panel">
+  <div class="panel-kicker">Portfolio Build</div>
+  <div class="panel-title">Live earthquake intelligence, presented like a real product.</div>
+  <div class="panel-copy">Search by region, inspect the strongest event in view, and monitor feed freshness with automatic refresh.</div>
+  <div class="search-shell">
+    <input id="search-input" type="text" placeholder="Search place, region, or country">
+    <button class="mini-btn" id="clear-search" type="button" aria-label="Clear search">×</button>
+  </div>
+  <div class="panel-grid">
+    <div class="panel-stat">
+      <div class="panel-stat-label">Auto Refresh</div>
+      <div class="panel-stat-value" id="auto-refresh-status">Every 5 min</div>
+    </div>
+    <div class="panel-stat">
+      <div class="panel-stat-label">Search Matches</div>
+      <div class="panel-stat-value" id="search-match-count">All events</div>
+    </div>
+  </div>
+  <div class="spotlight-card">
+    <div class="spotlight-row">
+      <div>
+        <div class="panel-kicker">Featured Event</div>
+        <div class="spotlight-type" id="spotlight-type">Largest in range</div>
+      </div>
+      <div class="spotlight-mag" id="spotlight-mag">M-</div>
+    </div>
+    <div class="spotlight-place" id="spotlight-place">Waiting for live data...</div>
+    <div class="spotlight-meta">
+      <div class="spotlight-pill" id="spotlight-depth">Depth -</div>
+      <div class="spotlight-pill" id="spotlight-time">Updated -</div>
+    </div>
+    <div class="panel-actions">
+      <button class="panel-action primary" id="focus-largest" type="button">Focus Event</button>
+      <button class="panel-action" id="open-largest" type="button">Open Details</button>
+    </div>
+  </div>
+  <div class="panel-footnote">Built from the live USGS feed with cinematic 3D rendering, fast interaction patterns, and portfolio-grade information design.</div>
+</div>
 
 <div id="legend">
   <div class="leg-title">Magnitude</div>
@@ -950,6 +1189,17 @@ canvas.dragging {
   const cardBackdrop = document.getElementById("card-backdrop");
   const infoCard = document.getElementById("infocard");
   const recentPanel = document.getElementById("recent-panel");
+  const searchInput = document.getElementById("search-input");
+  const clearSearchBtn = document.getElementById("clear-search");
+  const autoRefreshStatusEl = document.getElementById("auto-refresh-status");
+  const searchMatchCountEl = document.getElementById("search-match-count");
+  const spotlightMagEl = document.getElementById("spotlight-mag");
+  const spotlightPlaceEl = document.getElementById("spotlight-place");
+  const spotlightDepthEl = document.getElementById("spotlight-depth");
+  const spotlightTimeEl = document.getElementById("spotlight-time");
+  const spotlightTypeEl = document.getElementById("spotlight-type");
+  const focusLargestBtn = document.getElementById("focus-largest");
+  const openLargestBtn = document.getElementById("open-largest");
 
   const container = document.getElementById("canvas-container");
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
@@ -1143,6 +1393,7 @@ canvas.dragging {
   const DAMPING = 0.90;
   const AUTO_SPIN = 0.0012;
   const AUTO_RESUME_MS = 2500;
+  const AUTO_REFRESH_MS = 5 * 60 * 1000;
   let pulseRings = [];
   let dotData = [];
   let allEqData = [];
@@ -1150,9 +1401,16 @@ canvas.dragging {
   let currentEq = null;
   let cardOpen = false;
   let lastSyncTime = null;
+  let nextRefreshAt = null;
+  let refreshInFlight = false;
+  let searchQuery = "";
+  let featuredEq = null;
+  let selectedEqId = null;
   let activeFilters = new Set(["minor", "light", "moderate", "strong"]);
   const dotGroup = new THREE.Group();
+  const selectionGroup = new THREE.Group();
   pivot.add(dotGroup);
+  pivot.add(selectionGroup);
 
   function ll2v(lat, lon, r) {
     const phi = (90 - lat) * Math.PI / 180;
@@ -1198,6 +1456,10 @@ canvas.dragging {
     return "Deep focus";
   }
 
+  function normalizeText(value) {
+    return (value || "").toString().toLowerCase();
+  }
+
   function severityLabel(mag) {
     if (mag < 2.5) return "Minor";
     if (mag < 4.5) return "Light";
@@ -1216,6 +1478,101 @@ canvas.dragging {
     lastSyncTime = date;
     lastUpdatedEl.textContent = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     syncEl.textContent = formatSyncLabel(date);
+  }
+
+  function matchesSearch(eq) {
+    if (!searchQuery) return true;
+    const haystack = normalizeText((eq.properties && eq.properties.place) || "");
+    return haystack.includes(searchQuery);
+  }
+
+  function updateAutoRefreshLabel(now) {
+    if (!nextRefreshAt) {
+      autoRefreshStatusEl.textContent = "Manual";
+      return;
+    }
+    const remainingMs = Math.max(0, nextRefreshAt - now);
+    const mins = Math.floor(remainingMs / 60000);
+    const secs = Math.floor((remainingMs % 60000) / 1000);
+    autoRefreshStatusEl.textContent = "In " + mins + ":" + secs.toString().padStart(2, "0");
+  }
+
+  function setSelectedMarker(eq) {
+    while (selectionGroup.children.length) selectionGroup.remove(selectionGroup.children[0]);
+    if (!eq) return;
+    const lon = eq.geometry.coordinates[0];
+    const lat = eq.geometry.coordinates[1];
+    const mag = eq.properties.mag || 0;
+    const pos = ll2v(lat, lon, R + 0.028);
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(magSize(mag) * 2.1, magSize(mag) * 2.9, 36),
+      new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.9,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending
+      })
+    );
+    ring.position.copy(pos);
+    ring.lookAt(new THREE.Vector3(0, 0, 0));
+    selectionGroup.add(ring);
+
+    const halo = new THREE.Mesh(
+      new THREE.SphereGeometry(magSize(mag) * 1.6, 12, 12),
+      new THREE.MeshBasicMaterial({
+        color: magColor(mag),
+        transparent: true,
+        opacity: 0.26,
+        blending: THREE.AdditiveBlending
+      })
+    );
+    halo.position.copy(pos);
+    selectionGroup.add(halo);
+  }
+
+  function updateFeatured(eqList) {
+    if (!eqList.length) {
+      featuredEq = null;
+      spotlightMagEl.textContent = "M-";
+      spotlightPlaceEl.textContent = "No live events available.";
+      spotlightDepthEl.textContent = "Depth -";
+      spotlightTimeEl.textContent = "Updated -";
+      searchMatchCountEl.textContent = "0";
+      focusLargestBtn.disabled = true;
+      openLargestBtn.disabled = true;
+      return;
+    }
+
+    const visibleMatches = eqList.filter(eq => activeFilters.has(magCategory(eq.properties.mag || 0)) && matchesSearch(eq));
+    searchMatchCountEl.textContent = searchQuery ? (visibleMatches.length + " matches") : "All events";
+    if (searchQuery && !visibleMatches.length) {
+      featuredEq = null;
+      spotlightMagEl.textContent = "M-";
+      spotlightMagEl.style.color = "#d6e8ff";
+      spotlightPlaceEl.textContent = "No matching live events for that search.";
+      spotlightDepthEl.textContent = "Try a broader place name";
+      spotlightTimeEl.textContent = "Search remains live";
+      spotlightTypeEl.textContent = "Search focus";
+      focusLargestBtn.disabled = true;
+      openLargestBtn.disabled = true;
+      return;
+    }
+
+    featuredEq = (visibleMatches.length ? visibleMatches : eqList).reduce((a, b) =>
+      ((b.properties.mag || 0) > (a.properties.mag || 0) ? b : a), visibleMatches.length ? visibleMatches[0] : eqList[0]
+    );
+
+    const mag = featuredEq.properties.mag || 0;
+    const depth = featuredEq.geometry.coordinates[2] || 0;
+    spotlightMagEl.textContent = "M" + mag.toFixed(1);
+    spotlightMagEl.style.color = magHex(mag);
+    spotlightPlaceEl.textContent = featuredEq.properties.place || "Unknown location";
+    spotlightDepthEl.textContent = depthBand(depth) + " · " + depth.toFixed(1) + " km";
+    spotlightTimeEl.textContent = "Event " + new Date(featuredEq.properties.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    spotlightTypeEl.textContent = searchQuery ? "Best match in focus" : "Largest in range";
+    focusLargestBtn.disabled = false;
+    openLargestBtn.disabled = false;
   }
 
   function showAlert(text, background) {
@@ -1277,18 +1634,23 @@ canvas.dragging {
 
     const visible = eqList.filter(eq => activeFilters.has(magCategory(eq.properties.mag || 0)));
     visible.sort((a, b) => (a.properties.mag || 0) - (b.properties.mag || 0));
-
     visible.forEach(eq => {
       const mag = eq.properties.mag || 0;
       const lon = eq.geometry.coordinates[0];
       const lat = eq.geometry.coordinates[1];
+      const isMatch = matchesSearch(eq);
       const pos = ll2v(lat, lon, R + 0.022);
 
       const dot = new THREE.Mesh(
         new THREE.SphereGeometry(magSize(mag), 10, 10),
-        new THREE.MeshBasicMaterial({ color: magColor(mag), transparent: true, opacity: 0.96 })
+        new THREE.MeshBasicMaterial({
+          color: magColor(mag),
+          transparent: true,
+          opacity: searchQuery ? (isMatch ? 0.98 : 0.12) : 0.96
+        })
       );
       dot.position.copy(pos);
+      if (searchQuery && isMatch) dot.scale.setScalar(1.25);
       dotGroup.add(dot);
       dotData.push({ mesh: dot, eq });
 
@@ -1314,6 +1676,11 @@ canvas.dragging {
     document.getElementById("sv-count").textContent = eqList.length;
     document.getElementById("sv-max").textContent = "M" + (maxEq && maxEq.properties ? (maxEq.properties.mag || 0).toFixed(1) : "0.0");
     updateSyncUi(new Date());
+    updateFeatured(eqList);
+    if (selectedEqId) {
+      const selected = eqList.find(eq => eq.id === selectedEqId) || null;
+      setSelectedMarker(selected);
+    }
 
     const strong = eqList.filter(e => (e.properties.mag || 0) >= 6);
     if (strong.length > 0) {
@@ -1324,21 +1691,27 @@ canvas.dragging {
   }
 
   async function refreshData(range) {
+    if (refreshInFlight) return;
+    refreshInFlight = true;
     refreshBtn.classList.add("loading");
     document.getElementById("sv-count").textContent = "...";
     try {
       allEqData = await fetchEQ(range || currentRange);
       buildDots(allEqData);
+      nextRefreshAt = Date.now() + AUTO_REFRESH_MS;
+      updateAutoRefreshLabel(Date.now());
     } catch (err) {
       showAlert("Unable to refresh live feed right now", "rgba(80,80,80,0.9)");
       throw err;
     } finally {
       refreshBtn.classList.remove("loading");
+      refreshInFlight = false;
     }
   }
 
   function openCard(eq) {
     currentEq = eq;
+    selectedEqId = eq.id || null;
     const p = eq.properties;
     const mag = (p.mag || 0).toFixed(1);
     const depthValue = eq.geometry.coordinates[2] || 0;
@@ -1377,6 +1750,7 @@ canvas.dragging {
     document.getElementById("ic-depth-bar").style.width = depthPct + "%";
     document.getElementById("ic-depth-bar").style.background = depthColor;
 
+    setSelectedMarker(eq);
     infoCard.classList.add("open");
     cardBackdrop.classList.add("open");
     cardOpen = true;
@@ -1387,6 +1761,8 @@ canvas.dragging {
     cardBackdrop.classList.remove("open");
     cardOpen = false;
     currentEq = null;
+    selectedEqId = null;
+    setSelectedMarker(null);
     lastInteract = 0;
   }
 
@@ -1479,6 +1855,35 @@ canvas.dragging {
   refreshBtn.addEventListener("click", () => {
     refreshData(currentRange).catch(() => {});
   });
+
+  searchInput.addEventListener("input", () => {
+    searchQuery = normalizeText(searchInput.value.trim());
+    buildDots(allEqData);
+  });
+
+  clearSearchBtn.addEventListener("click", () => {
+    searchInput.value = "";
+    searchQuery = "";
+    buildDots(allEqData);
+  });
+
+  focusLargestBtn.addEventListener("click", () => {
+    if (!featuredEq) return;
+    selectedEqId = featuredEq.id || null;
+    setSelectedMarker(featuredEq);
+    openCard(featuredEq);
+  });
+
+  openLargestBtn.addEventListener("click", () => {
+    if (featuredEq) openCard(featuredEq);
+  });
+
+  window.setInterval(() => {
+    updateAutoRefreshLabel(Date.now());
+    if (nextRefreshAt && Date.now() >= nextRefreshAt && !refreshInFlight) {
+      refreshData(currentRange).catch(() => {});
+    }
+  }, 1000);
 
   document.getElementById("recent-btn").addEventListener("click", () => {
     recentPanel.classList.toggle("open");
