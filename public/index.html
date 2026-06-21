@@ -689,14 +689,20 @@ canvas.dragging {
 
 #hint {
   position: fixed;
-  right: 14px;
-  bottom: 20px;
-  z-index: 10;
+  right: 16px;
+  bottom: 22px;
+  z-index: 22;
+  padding: 10px 12px;
+  border-radius: 14px;
   text-align: right;
-  font-size: 9px;
-  line-height: 2.2;
+  font-size: 10px;
+  line-height: 1.65;
   letter-spacing: 0.03em;
-  color: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.62);
+  background: rgba(4, 12, 26, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(14px);
   pointer-events: none;
 }
 
@@ -983,8 +989,9 @@ canvas.dragging {
   }
 
   #hint {
-    right: 78px;
-    bottom: 24px;
+    right: 14px;
+    bottom: 18px;
+    max-width: 180px;
   }
 }
 
@@ -1072,7 +1079,7 @@ canvas.dragging {
 
 <div id="insight-panel">
   <div class="panel-kicker">Portfolio Build</div>
-  <div class="panel-title">Live earthquake intelligence, presented like a real product.</div>
+  <div class="panel-title">Live earthquake intelligence.</div>
   <div class="panel-copy">Search by region, inspect the strongest event in view, and monitor feed freshness with automatic refresh.</div>
   <div class="search-shell">
     <input id="search-input" type="text" placeholder="Search place, region, or country">
@@ -1301,6 +1308,17 @@ canvas.dragging {
       ctx.stroke();
     }
 
+    for (let i = 0; i < 1400; i += 1) {
+      const x = Math.random() * width;
+      const y = Math.random() * height;
+      const alpha = Math.random() * 0.08;
+      const radius = Math.random() * 2.2 + 0.4;
+      ctx.fillStyle = "rgba(255,255,255," + alpha.toFixed(3) + ")";
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
     return new THREE.CanvasTexture(canvasTex);
   }
 
@@ -1311,7 +1329,7 @@ canvas.dragging {
   const globeMat = new THREE.MeshPhongMaterial({
     map: earthTex,
     specular: new THREE.Color(0x1a3355),
-    shininess: 14
+    shininess: 20
   });
   const globe = new THREE.Mesh(new THREE.SphereGeometry(R, 80, 80), globeMat);
 
@@ -1363,9 +1381,21 @@ canvas.dragging {
     })
   );
 
+  const innerGlowMesh = new THREE.Mesh(
+    new THREE.SphereGeometry(R + 0.01, 64, 64),
+    new THREE.MeshPhongMaterial({
+      color: 0x2f8cff,
+      transparent: true,
+      opacity: 0.06,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    })
+  );
+
   const pivot = new THREE.Group();
   pivot.add(globe);
   if (cloudTex) pivot.add(cloudTex);
+  pivot.add(innerGlowMesh);
   pivot.add(atmMesh);
   pivot.add(auraMesh);
   scene.add(pivot);
@@ -1495,6 +1525,19 @@ canvas.dragging {
     const mins = Math.floor(remainingMs / 60000);
     const secs = Math.floor((remainingMs % 60000) / 1000);
     autoRefreshStatusEl.textContent = "In " + mins + ":" + secs.toString().padStart(2, "0");
+  }
+
+  function markerVisuals(mag, isMatch) {
+    if (mag < 2.5) {
+      return { core: 0.009, halo: 0.018, opacity: isMatch ? 0.94 : 0.12, haloOpacity: isMatch ? 0.18 : 0.04 };
+    }
+    if (mag < 4.5) {
+      return { core: 0.016, halo: 0.03, opacity: isMatch ? 0.96 : 0.14, haloOpacity: isMatch ? 0.2 : 0.05 };
+    }
+    if (mag < 6.0) {
+      return { core: 0.028, halo: 0.048, opacity: isMatch ? 0.98 : 0.18, haloOpacity: isMatch ? 0.22 : 0.06 };
+    }
+    return { core: 0.044, halo: 0.07, opacity: isMatch ? 1 : 0.22, haloOpacity: isMatch ? 0.28 : 0.08 };
   }
 
   function setSelectedMarker(eq) {
@@ -1640,13 +1683,14 @@ canvas.dragging {
       const lat = eq.geometry.coordinates[1];
       const isMatch = matchesSearch(eq);
       const pos = ll2v(lat, lon, R + 0.022);
+      const visuals = markerVisuals(mag, isMatch);
 
       const dot = new THREE.Mesh(
-        new THREE.SphereGeometry(magSize(mag), 10, 10),
+        new THREE.SphereGeometry(visuals.core, 12, 12),
         new THREE.MeshBasicMaterial({
           color: magColor(mag),
           transparent: true,
-          opacity: searchQuery ? (isMatch ? 0.98 : 0.12) : 0.96
+          opacity: searchQuery ? visuals.opacity : Math.max(0.9, visuals.opacity)
         })
       );
       dot.position.copy(pos);
@@ -1654,8 +1698,21 @@ canvas.dragging {
       dotGroup.add(dot);
       dotData.push({ mesh: dot, eq });
 
+      const halo = new THREE.Mesh(
+        new THREE.SphereGeometry(visuals.halo, 12, 12),
+        new THREE.MeshBasicMaterial({
+          color: magColor(mag),
+          transparent: true,
+          opacity: searchQuery ? visuals.haloOpacity : visuals.haloOpacity + 0.04,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
+        })
+      );
+      halo.position.copy(pos);
+      dotGroup.add(halo);
+
       if (mag >= 4.5) {
-        const rs = magSize(mag) * 1.8;
+        const rs = visuals.core * 1.9;
         const ring = new THREE.Mesh(
           new THREE.RingGeometry(rs, rs * 1.6, 24),
           new THREE.MeshBasicMaterial({
@@ -1802,6 +1859,7 @@ canvas.dragging {
       ring.material.opacity = 0.65 * (1 - (s - 1) / 0.65);
     });
     auraMesh.material.opacity = 0.045 + ((Math.sin(t * 1.2) + 1) / 2) * 0.03;
+    innerGlowMesh.material.opacity = 0.045 + ((Math.sin(t * 0.9 + 0.7) + 1) / 2) * 0.025;
     atmMat.uniforms.c.value = 0.46 + Math.sin(t * 0.8) * 0.03;
 
     renderer.render(scene, camera);
