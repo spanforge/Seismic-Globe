@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Seismic Globe</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23020a16'/%3E%3Cpath d='M10 34h12l4-8 6 16 6-12 4 4h12' fill='none' stroke='%23ff5b5b' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#020816">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -480,6 +484,60 @@ canvas.dragging {
 
 .search-shell input::placeholder {
   color: rgba(255, 255, 255, 0.32);
+}
+
+.control-stack {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.control-block {
+  padding: 11px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.control-label {
+  margin-bottom: 8px;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.36);
+}
+
+.preset-row,
+.saved-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.preset-chip,
+.saved-chip {
+  min-height: 32px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.82);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sort-select {
+  width: 100%;
+  min-height: 38px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e7f2ff;
+  font: inherit;
+  font-size: 12px;
+  padding: 0 10px;
 }
 
 .mini-btn {
@@ -1302,7 +1360,7 @@ canvas.dragging {
 </div>
 
 <button id="refresh-btn" type="button" title="Refresh data">
-  <span class="refresh-icon">↻</span>
+  <span class="refresh-icon">R</span>
   <span>Refresh</span>
 </button>
 
@@ -1329,6 +1387,25 @@ canvas.dragging {
     <input id="search-input" type="text" placeholder="Search place, region, or country">
     <button class="mini-btn" id="clear-search" type="button" aria-label="Clear search">x</button>
   </div>
+  <div class="control-stack">
+    <div class="control-block">
+      <div class="control-label">Region Presets</div>
+      <div class="preset-row" id="preset-row"></div>
+    </div>
+    <div class="control-block">
+      <div class="control-label">Sort Events</div>
+      <select class="sort-select" id="sort-select" aria-label="Sort events">
+        <option value="magnitude-desc">Largest first</option>
+        <option value="latest-desc">Latest first</option>
+        <option value="felt-desc">Most felt reports</option>
+        <option value="depth-asc">Shallowest first</option>
+      </select>
+    </div>
+    <div class="control-block">
+      <div class="control-label">Saved Views</div>
+      <div class="saved-row" id="saved-row"></div>
+    </div>
+  </div>
   <div class="panel-grid">
     <div class="panel-stat">
       <div class="panel-stat-label">Auto Refresh</div>
@@ -1337,6 +1414,14 @@ canvas.dragging {
     <div class="panel-stat">
       <div class="panel-stat-label">Search Matches</div>
       <div class="panel-stat-value" id="search-match-count">All events</div>
+    </div>
+    <div class="panel-stat">
+      <div class="panel-stat-label">Most Active</div>
+      <div class="panel-stat-value" id="active-region">-</div>
+    </div>
+    <div class="panel-stat">
+      <div class="panel-stat-label">Alerts</div>
+      <div class="panel-stat-value" id="alert-summary">-</div>
     </div>
   </div>
   <div class="spotlight-card">
@@ -1359,7 +1444,8 @@ canvas.dragging {
   </div>
   <div class="panel-footnote">Built from the live USGS feed with cinematic 3D rendering, fast interaction patterns, and portfolio-grade information design.</div>
   <div class="panel-subactions">
-    <button class="panel-subaction" id="share-view" type="button">Share View</button>
+    <button class="panel-subaction" id="share-link" type="button">Share Link</button>
+    <button class="panel-subaction" id="save-view" type="button">Save View</button>
     <button class="panel-subaction" id="story-mode" type="button">Story Mode</button>
   </div>
 </div>
@@ -1458,8 +1544,13 @@ canvas.dragging {
   const recentPanel = document.getElementById("recent-panel");
   const searchInput = document.getElementById("search-input");
   const clearSearchBtn = document.getElementById("clear-search");
+  const presetRow = document.getElementById("preset-row");
+  const savedRow = document.getElementById("saved-row");
+  const sortSelect = document.getElementById("sort-select");
   const autoRefreshStatusEl = document.getElementById("auto-refresh-status");
   const searchMatchCountEl = document.getElementById("search-match-count");
+  const activeRegionEl = document.getElementById("active-region");
+  const alertSummaryEl = document.getElementById("alert-summary");
   const spotlightMagEl = document.getElementById("spotlight-mag");
   const spotlightPlaceEl = document.getElementById("spotlight-place");
   const spotlightDepthEl = document.getElementById("spotlight-depth");
@@ -1467,7 +1558,8 @@ canvas.dragging {
   const spotlightTypeEl = document.getElementById("spotlight-type");
   const focusLargestBtn = document.getElementById("focus-largest");
   const openLargestBtn = document.getElementById("open-largest");
-  const shareViewBtn = document.getElementById("share-view");
+  const shareLinkBtn = document.getElementById("share-link");
+  const saveViewBtn = document.getElementById("save-view");
   const storyModeBtn = document.getElementById("story-mode");
   const replayToggleBtn = document.getElementById("replay-toggle");
   const replaySlider = document.getElementById("replay-slider");
@@ -1476,6 +1568,7 @@ canvas.dragging {
   const labelsLayer = document.getElementById("labels-layer");
   const quakeFlash = document.getElementById("quake-flash");
   labelsLayer.classList.toggle("compact", window.innerWidth <= 820);
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const container = document.getElementById("canvas-container");
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
@@ -1703,6 +1796,7 @@ canvas.dragging {
   let nextRefreshAt = null;
   let refreshInFlight = false;
   let searchQuery = "";
+  let sortMode = "magnitude-desc";
   let featuredEq = null;
   let selectedEqId = null;
   let replayActive = false;
@@ -1713,7 +1807,7 @@ canvas.dragging {
   let replaySubset = [];
   let storyMode = false;
   let dramaticFlashTimeout = null;
-  const focusState = { active: false, start: 0, duration: 1400, fromX: 0, fromY: 0, toX: 0, toY: 0, fromZ: 2.7, toZ: 2.2 };
+  const focusState = { active: false, start: 0, duration: prefersReducedMotion ? 0 : 1400, fromX: 0, fromY: 0, toX: 0, toY: 0, fromZ: 2.7, toZ: 2.2 };
   let activeFilters = new Set(["minor", "light", "moderate", "strong"]);
   const dotGroup = new THREE.Group();
   const selectionGroup = new THREE.Group();
@@ -1728,6 +1822,14 @@ canvas.dragging {
     { name: "Asia", lat: 33, lon: 95 },
     { name: "Oceania", lat: -24, lon: 134 },
     { name: "Pacific Ring", lat: 8, lon: 160 }
+  ];
+  const presets = [
+    { label: "California", query: "california" },
+    { label: "Japan", query: "japan" },
+    { label: "Indonesia", query: "indonesia" },
+    { label: "Turkey", query: "turkey" },
+    { label: "Chile", query: "chile" },
+    { label: "Alaska", query: "alaska" }
   ];
   const labelNodes = regionLabels.map(label => {
     const el = document.createElement("div");
@@ -1822,6 +1924,110 @@ canvas.dragging {
     autoRefreshStatusEl.textContent = "In " + mins + ":" + secs.toString().padStart(2, "0");
   }
 
+  function sortEvents(list) {
+    const sorted = [...list];
+    if (sortMode === "latest-desc") return sorted.sort((a, b) => (b.properties.time || 0) - (a.properties.time || 0));
+    if (sortMode === "felt-desc") return sorted.sort((a, b) => (b.properties.felt || 0) - (a.properties.felt || 0));
+    if (sortMode === "depth-asc") return sorted.sort((a, b) => ((a.geometry.coordinates[2] || 0) - (b.geometry.coordinates[2] || 0)));
+    return sorted.sort((a, b) => (b.properties.mag || 0) - (a.properties.mag || 0));
+  }
+
+  function currentViewState() {
+    return {
+      range: currentRange,
+      search: searchQuery,
+      sort: sortMode,
+      filters: ["minor", "light", "moderate", "strong"].filter(key => activeFilters.has(key))
+    };
+  }
+
+  function applyViewState(state) {
+    if (state.range) currentRange = state.range === "week" ? "week" : "day";
+    searchQuery = state.search || "";
+    sortMode = state.sort || "magnitude-desc";
+    const nextFilters = Array.isArray(state.filters) && state.filters.length ? new Set(state.filters) : new Set(["minor", "light", "moderate", "strong"]);
+    activeFilters = nextFilters;
+    searchInput.value = searchQuery;
+    sortSelect.value = sortMode;
+    document.querySelectorAll(".ttbtn").forEach(btn => btn.classList.toggle("active", btn.dataset.range === currentRange));
+    document.getElementById("time-range-label").textContent = currentRange === "day" ? "Past 24 hours" : "Past 7 days";
+    document.querySelectorAll(".fbtn[data-mag]").forEach(btn => {
+      const mag = btn.dataset.mag;
+      const active = mag === "all" ? ["minor", "light", "moderate", "strong"].every(k => activeFilters.has(k)) : activeFilters.has(mag);
+      btn.classList.toggle("active", active);
+    });
+  }
+
+  function updateUrlState() {
+    const state = currentViewState();
+    const params = new URLSearchParams();
+    if (state.range !== "day") params.set("range", state.range);
+    if (state.search) params.set("search", state.search);
+    if (state.sort !== "magnitude-desc") params.set("sort", state.sort);
+    if (state.filters.length !== 4) params.set("filters", state.filters.join(","));
+    const next = params.toString() ? "?" + params.toString() : location.pathname;
+    history.replaceState(null, "", next);
+  }
+
+  function renderPresetButtons() {
+    presetRow.innerHTML = "";
+    presets.forEach(preset => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "preset-chip";
+      btn.textContent = preset.label;
+      btn.addEventListener("click", () => {
+        searchQuery = preset.query;
+        searchInput.value = preset.query;
+        buildDots(getDisplayedData());
+        updateUrlState();
+        if (featuredEq) focusEvent(featuredEq, 1.95);
+      });
+      presetRow.appendChild(btn);
+    });
+  }
+
+  function getSavedViews() {
+    try {
+      return JSON.parse(localStorage.getItem("seismic-globe-saved-views") || "[]");
+    } catch {
+      return [];
+    }
+  }
+
+  function renderSavedViews() {
+    const saved = getSavedViews();
+    savedRow.innerHTML = "";
+    if (!saved.length) {
+      const empty = document.createElement("div");
+      empty.className = "spotlight-pill";
+      empty.textContent = "No saved views yet";
+      savedRow.appendChild(empty);
+      return;
+    }
+    saved.slice(0, 5).forEach(view => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "saved-chip";
+      btn.textContent = view.name;
+      btn.addEventListener("click", async () => {
+        applyViewState(view.state);
+        await refreshData(currentRange).catch(() => {});
+        updateUrlState();
+      });
+      savedRow.appendChild(btn);
+    });
+  }
+
+  function saveCurrentView() {
+    const label = "View " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const saved = getSavedViews();
+    saved.unshift({ name: label, state: currentViewState() });
+    localStorage.setItem("seismic-globe-saved-views", JSON.stringify(saved.slice(0, 5)));
+    renderSavedViews();
+    showAlert("Saved current view", "rgba(40,110,80,0.92)");
+  }
+
   function normalizeAngle(value) {
     let angle = value;
     while (angle > Math.PI) angle -= Math.PI * 2;
@@ -1843,6 +2049,12 @@ canvas.dragging {
     focusState.toY = targetY;
     focusState.fromZ = camera.position.z;
     focusState.toZ = zoomOverride || Math.max(1.7, 2.55 - Math.min((eq.properties.mag || 0) * 0.11, 0.75));
+    if (prefersReducedMotion) {
+      pivot.rotation.x = focusState.toX;
+      pivot.rotation.y = focusState.toY;
+      camera.position.z = focusState.toZ;
+      focusState.active = false;
+    }
   }
 
   function updateLabels() {
@@ -1969,13 +2181,24 @@ canvas.dragging {
       spotlightDepthEl.textContent = "Depth -";
       spotlightTimeEl.textContent = "Updated -";
       searchMatchCountEl.textContent = "0";
+      activeRegionEl.textContent = "-";
+      alertSummaryEl.textContent = "-";
       focusLargestBtn.disabled = true;
       openLargestBtn.disabled = true;
       return;
     }
 
     const visibleMatches = eqList.filter(eq => activeFilters.has(magCategory(eq.properties.mag || 0)) && matchesSearch(eq));
+    const regionCounts = {};
+    eqList.forEach(eq => {
+      const place = (eq.properties.place || "Unknown").split(",").pop().trim();
+      regionCounts[place] = (regionCounts[place] || 0) + 1;
+    });
+    const mostActive = Object.entries(regionCounts).sort((a, b) => b[1] - a[1])[0];
+    const alerts = eqList.filter(eq => (eq.properties.alert || "") !== "").length;
     searchMatchCountEl.textContent = searchQuery ? (visibleMatches.length + " matches") : "All events";
+    activeRegionEl.textContent = mostActive ? mostActive[0] : "Mixed";
+    alertSummaryEl.textContent = alerts ? (alerts + " advisory") : "None";
     if (searchQuery && !visibleMatches.length) {
       featuredEq = null;
       spotlightMagEl.textContent = "M-";
@@ -2010,6 +2233,16 @@ canvas.dragging {
     alertBadge.style.display = "block";
     alertBadge.style.background = background || "rgba(220,40,40,0.9)";
     window.setTimeout(() => { alertBadge.style.display = "none"; }, 5000);
+  }
+
+  function stateFromUrl() {
+    const params = new URLSearchParams(location.search);
+    return {
+      range: params.get("range") || "day",
+      search: params.get("search") || "",
+      sort: params.get("sort") || "magnitude-desc",
+      filters: (params.get("filters") || "").split(",").filter(Boolean)
+    };
   }
 
   const FEEDS = {
@@ -2075,8 +2308,7 @@ canvas.dragging {
       return;
     }
 
-    const visible = eqList.filter(eq => activeFilters.has(magCategory(eq.properties.mag || 0)));
-    visible.sort((a, b) => (a.properties.mag || 0) - (b.properties.mag || 0));
+    const visible = sortEvents(eqList.filter(eq => activeFilters.has(magCategory(eq.properties.mag || 0))));
     const nextKeys = new Set();
     visible.forEach(eq => {
       const key = eventKey(eq);
@@ -2258,7 +2490,8 @@ canvas.dragging {
     };
     document.getElementById("ic-alert").textContent = alertLevel.charAt(0).toUpperCase() + alertLevel.slice(1);
     document.getElementById("ic-alert").style.color = alertColors[alertLevel] || alertColors.none;
-    document.getElementById("ic-time").textContent = new Date(p.time).toLocaleString();
+    const eventDate = new Date(p.time);
+    document.getElementById("ic-time").textContent = eventDate.toLocaleString() + " | UTC " + eventDate.toUTCString().replace(" GMT", "");
 
     const depthPct = Math.min((parseFloat(depth) / 700) * 100, 100);
     const depthColor = depthPct < 20 ? "#ff4444" : depthPct < 50 ? "#ff8800" : "#4488ff";
@@ -2354,10 +2587,13 @@ canvas.dragging {
     renderer.render(scene, camera);
   })();
 
+  renderPresetButtons();
+  renderSavedViews();
+  applyViewState(stateFromUrl());
   document.getElementById("loading").style.display = "none";
 
   try {
-    await refreshData("day");
+    await refreshData(currentRange);
   } catch (err) {
     document.getElementById("sv-count").textContent = "-";
     document.getElementById("sv-max").textContent = "-";
@@ -2383,6 +2619,7 @@ canvas.dragging {
         document.querySelector('.fbtn[data-mag="all"]').classList.toggle("active", all4);
       }
       buildDots(allEqData);
+      updateUrlState();
     });
   });
 
@@ -2395,6 +2632,7 @@ canvas.dragging {
       document.getElementById("time-range-label").textContent = currentRange === "day" ? "Past 24 hours" : "Past 7 days";
       try {
         await refreshData(currentRange);
+        updateUrlState();
       } catch (err) {}
     });
   });
@@ -2405,13 +2643,21 @@ canvas.dragging {
 
   searchInput.addEventListener("input", () => {
     searchQuery = normalizeText(searchInput.value.trim());
-    buildDots(allEqData);
+    buildDots(getDisplayedData());
+    updateUrlState();
   });
 
   clearSearchBtn.addEventListener("click", () => {
     searchInput.value = "";
     searchQuery = "";
-    buildDots(allEqData);
+    buildDots(getDisplayedData());
+    updateUrlState();
+  });
+
+  sortSelect.addEventListener("change", () => {
+    sortMode = sortSelect.value;
+    buildDots(getDisplayedData());
+    updateUrlState();
   });
 
   focusLargestBtn.addEventListener("click", () => {
@@ -2443,26 +2689,28 @@ canvas.dragging {
     applyReplayProgress(Number(replaySlider.value));
   });
 
-  shareViewBtn.addEventListener("click", async () => {
+  shareLinkBtn.addEventListener("click", async () => {
     try {
-      const dataUrl = canvas.toDataURL("image/png");
-      if (navigator.share && navigator.canShare) {
-        const res = await fetch(dataUrl);
-        const blob = await res.blob();
-        const file = new File([blob], "seismic-globe-view.png", { type: "image/png" });
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({ title: "Seismic Globe", text: "Live earthquake intelligence", files: [file] });
-          return;
-        }
+      updateUrlState();
+      const shareUrl = location.href;
+      if (navigator.share) {
+        await navigator.share({ title: "Seismic Globe", text: "Live earthquake intelligence", url: shareUrl });
+        return;
       }
-      const link = document.createElement("a");
-      link.href = dataUrl;
-      link.download = "seismic-globe-view.png";
-      link.click();
-      showAlert("Snapshot downloaded", "rgba(40,110,80,0.92)");
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(shareUrl);
+        showAlert("Shareable link copied", "rgba(40,110,80,0.92)");
+        return;
+      }
+      showAlert("Copy this URL from your browser", "rgba(80,80,80,0.9)");
     } catch (err) {
-      showAlert("Could not export snapshot", "rgba(80,80,80,0.9)");
+      showAlert("Could not share this view", "rgba(80,80,80,0.9)");
     }
+  });
+
+  saveViewBtn.addEventListener("click", () => {
+    saveCurrentView();
+    updateUrlState();
   });
 
   storyModeBtn.addEventListener("click", () => {
@@ -2642,8 +2890,15 @@ canvas.dragging {
     renderer.setSize(window.innerWidth, window.innerHeight);
     labelsLayer.classList.toggle("compact", window.innerWidth <= 820);
   });
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  }
 })();
 </script>
 </body>
 </html>
+
 

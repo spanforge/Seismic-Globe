@@ -1,0 +1,17 @@
+{
+  "name": "Seismic Globe",
+  "short_name": "Seismic",
+  "description": "Live earthquake intelligence and cinematic global seismic replay.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020816",
+  "theme_color": "#020816",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
