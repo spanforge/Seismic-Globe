@@ -275,12 +275,11 @@ canvas.dragging {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  font-size: 12px;
-  line-height: 1;
+  background: linear-gradient(180deg, rgba(99, 179, 255, 0.95), rgba(99, 179, 255, 0.55));
+  box-shadow: 0 0 0 4px rgba(99, 179, 255, 0.10);
 }
 
 #filter-bar {
@@ -1372,7 +1371,7 @@ canvas.dragging {
 </div>
 
 <button id="refresh-btn" type="button" title="Refresh data">
-  <span class="refresh-icon">R</span>
+  <span class="refresh-icon" aria-hidden="true"></span>
   <span>Refresh</span>
 </button>
 
