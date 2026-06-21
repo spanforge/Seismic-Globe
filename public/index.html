@@ -1713,11 +1713,11 @@ canvas.dragging {
   let replaySubset = [];
   let storyMode = false;
   let dramaticFlashTimeout = null;
-  let cameraTargetZ = camera.position.z;
   const focusState = { active: false, start: 0, duration: 1400, fromX: 0, fromY: 0, toX: 0, toY: 0, fromZ: 2.7, toZ: 2.2 };
   let activeFilters = new Set(["minor", "light", "moderate", "strong"]);
   const dotGroup = new THREE.Group();
   const selectionGroup = new THREE.Group();
+  const markerCache = new Map();
   pivot.add(dotGroup);
   pivot.add(selectionGroup);
   const regionLabels = [
@@ -1847,14 +1847,15 @@ canvas.dragging {
 
   function updateLabels() {
     labelNodes.forEach(({ data, el }) => {
-      const world = ll2v(data.lat, data.lon, R + 0.22).clone();
-      world.applyMatrix4(pivot.matrixWorld);
+      const local = ll2v(data.lat, data.lon, R + 0.22);
+      const rotated = local.clone().applyEuler(pivot.rotation);
+      const world = rotated.clone();
       const projected = world.project(camera);
-      const visible = projected.z < 1 && world.z < camera.position.z + 1.5;
       const x = (projected.x * 0.5 + 0.5) * window.innerWidth;
       const y = (-projected.y * 0.5 + 0.5) * window.innerHeight;
-      const facing = world.normalize().dot(camera.position.clone().normalize()) > -0.15;
-      if (!visible || !facing) {
+      const onFrontHemisphere = rotated.z > 0.12;
+      const onScreen = projected.z > -1 && projected.z < 1 && x >= -80 && x <= window.innerWidth + 80 && y >= -40 && y <= window.innerHeight + 40;
+      if (!onFrontHemisphere || !onScreen) {
         el.style.opacity = "0";
         return;
       }
@@ -1920,6 +1921,10 @@ canvas.dragging {
       return { core: 0.028, halo: 0.048, opacity: isMatch ? 0.98 : 0.18, haloOpacity: isMatch ? 0.22 : 0.06 };
     }
     return { core: 0.044, halo: 0.07, opacity: isMatch ? 1 : 0.22, haloOpacity: isMatch ? 0.28 : 0.08 };
+  }
+
+  function eventKey(eq) {
+    return eq.id || [eq.properties.time || "", eq.properties.place || "", eq.properties.mag || ""].join("|");
   }
 
   function setSelectedMarker(eq) {
@@ -2053,10 +2058,15 @@ canvas.dragging {
   }
 
   function buildDots(eqList) {
-    while (dotGroup.children.length) dotGroup.remove(dotGroup.children[0]);
     dotData = [];
     pulseRings = [];
     if (!eqList.length) {
+      markerCache.forEach(marker => {
+        dotGroup.remove(marker.dot);
+        dotGroup.remove(marker.halo);
+        if (marker.ring) dotGroup.remove(marker.ring);
+      });
+      markerCache.clear();
       document.getElementById("sv-count").textContent = "0";
       document.getElementById("sv-max").textContent = "-";
       updateFeatured([]);
@@ -2067,56 +2077,104 @@ canvas.dragging {
 
     const visible = eqList.filter(eq => activeFilters.has(magCategory(eq.properties.mag || 0)));
     visible.sort((a, b) => (a.properties.mag || 0) - (b.properties.mag || 0));
+    const nextKeys = new Set();
     visible.forEach(eq => {
+      const key = eventKey(eq);
+      nextKeys.add(key);
       const mag = eq.properties.mag || 0;
       const lon = eq.geometry.coordinates[0];
       const lat = eq.geometry.coordinates[1];
       const isMatch = matchesSearch(eq);
       const pos = ll2v(lat, lon, R + 0.022);
       const visuals = markerVisuals(mag, isMatch);
+      let marker = markerCache.get(key);
+      if (!marker) {
+        const dot = new THREE.Mesh(
+          new THREE.SphereGeometry(visuals.core, 12, 12),
+          new THREE.MeshBasicMaterial({
+            color: magColor(mag),
+            transparent: true,
+            opacity: searchQuery ? visuals.opacity : Math.max(0.9, visuals.opacity)
+          })
+        );
+        const halo = new THREE.Mesh(
+          new THREE.SphereGeometry(visuals.halo, 12, 12),
+          new THREE.MeshBasicMaterial({
+            color: magColor(mag),
+            transparent: true,
+            opacity: searchQuery ? visuals.haloOpacity : visuals.haloOpacity + 0.04,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+          })
+        );
+        marker = { dot, halo, ring: null, phase: Math.random() * Math.PI * 2 };
+        dotGroup.add(dot);
+        dotGroup.add(halo);
+        markerCache.set(key, marker);
+      }
 
-      const dot = new THREE.Mesh(
-        new THREE.SphereGeometry(visuals.core, 12, 12),
-        new THREE.MeshBasicMaterial({
-          color: magColor(mag),
-          transparent: true,
-          opacity: searchQuery ? visuals.opacity : Math.max(0.9, visuals.opacity)
-        })
-      );
-      dot.position.copy(pos);
-      if (searchQuery && isMatch) dot.scale.setScalar(1.25);
-      dotGroup.add(dot);
-      dotData.push({ mesh: dot, eq });
+      marker.dot.position.copy(pos);
+      marker.halo.position.copy(pos);
+      marker.dot.material.color.copy(magColor(mag));
+      marker.halo.material.color.copy(magColor(mag));
+      marker.dot.material.opacity = searchQuery ? visuals.opacity : Math.max(0.9, visuals.opacity);
+      marker.halo.material.opacity = searchQuery ? visuals.haloOpacity : visuals.haloOpacity + 0.04;
+      marker.dot.scale.setScalar(searchQuery && isMatch ? 1.25 : 1);
 
-      const halo = new THREE.Mesh(
-        new THREE.SphereGeometry(visuals.halo, 12, 12),
-        new THREE.MeshBasicMaterial({
-          color: magColor(mag),
-          transparent: true,
-          opacity: searchQuery ? visuals.haloOpacity : visuals.haloOpacity + 0.04,
-          blending: THREE.AdditiveBlending,
-          depthWrite: false
-        })
-      );
-      halo.position.copy(pos);
-      dotGroup.add(halo);
+      if (marker.dot.geometry.parameters.radius !== visuals.core) {
+        marker.dot.geometry.dispose();
+        marker.dot.geometry = new THREE.SphereGeometry(visuals.core, 12, 12);
+      }
+      if (marker.halo.geometry.parameters.radius !== visuals.halo) {
+        marker.halo.geometry.dispose();
+        marker.halo.geometry = new THREE.SphereGeometry(visuals.halo, 12, 12);
+      }
 
       if (mag >= 4.5) {
         const rs = visuals.core * 1.9;
-        const ring = new THREE.Mesh(
-          new THREE.RingGeometry(rs, rs * 1.6, 24),
-          new THREE.MeshBasicMaterial({
-            color: mag >= 6 ? 0xff2020 : 0xff6600,
-            transparent: true,
-            opacity: 0.8,
-            side: THREE.DoubleSide
-          })
-        );
-        ring.position.copy(pos);
-        ring.lookAt(new THREE.Vector3(0, 0, 0));
-        dotGroup.add(ring);
-        pulseRings.push({ ring, phase: Math.random() * Math.PI * 2 });
+        if (!marker.ring) {
+          marker.ring = new THREE.Mesh(
+            new THREE.RingGeometry(rs, rs * 1.6, 24),
+            new THREE.MeshBasicMaterial({
+              color: mag >= 6 ? 0xff2020 : 0xff6600,
+              transparent: true,
+              opacity: 0.8,
+              side: THREE.DoubleSide
+            })
+          );
+          dotGroup.add(marker.ring);
+        } else if (marker.ring.geometry.parameters.innerRadius !== rs) {
+          marker.ring.geometry.dispose();
+          marker.ring.geometry = new THREE.RingGeometry(rs, rs * 1.6, 24);
+        }
+        marker.ring.material.color.setHex(mag >= 6 ? 0xff2020 : 0xff6600);
+        marker.ring.position.copy(pos);
+        marker.ring.lookAt(new THREE.Vector3(0, 0, 0));
+        pulseRings.push({ ring: marker.ring, phase: marker.phase });
+      } else if (marker.ring) {
+        dotGroup.remove(marker.ring);
+        marker.ring.geometry.dispose();
+        marker.ring.material.dispose();
+        marker.ring = null;
       }
+
+      dotData.push({ mesh: marker.dot, eq });
+    });
+
+    markerCache.forEach((marker, key) => {
+      if (nextKeys.has(key)) return;
+      dotGroup.remove(marker.dot);
+      dotGroup.remove(marker.halo);
+      if (marker.ring) {
+        dotGroup.remove(marker.ring);
+        marker.ring.geometry.dispose();
+        marker.ring.material.dispose();
+      }
+      marker.dot.geometry.dispose();
+      marker.dot.material.dispose();
+      marker.halo.geometry.dispose();
+      marker.halo.material.dispose();
+      markerCache.delete(key);
     });
 
     const maxEq = eqList.reduce((a, b) => ((b.properties.mag || 0) > (a.properties.mag || 0) ? b : a), eqList[0]);
