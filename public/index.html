@@ -267,6 +267,18 @@ canvas.dragging {
   animation: rot 0.9s linear infinite;
 }
 
+.refresh-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 12px;
+  line-height: 1;
+}
+
 #filter-bar {
   position: fixed;
   top: 118px;
@@ -442,6 +454,7 @@ canvas.dragging {
   font-size: 12px;
   line-height: 1.55;
   color: rgba(255, 255, 255, 0.62);
+  max-width: 28ch;
 }
 
 .search-shell {
@@ -478,6 +491,13 @@ canvas.dragging {
   border-radius: 10px;
   cursor: pointer;
   font: inherit;
+}
+
+.mini-btn:active,
+.panel-action:active,
+.panel-subaction:active,
+.replay-btn:active {
+  transform: scale(0.97);
 }
 
 .panel-grid {
@@ -543,6 +563,7 @@ canvas.dragging {
   font-size: 13px;
   line-height: 1.45;
   color: #e8f1ff;
+  min-height: 2.9em;
 }
 
 .spotlight-meta {
@@ -590,11 +611,140 @@ canvas.dragging {
   cursor: default;
 }
 
+.panel-subactions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.panel-subaction {
+  flex: 1;
+  min-height: 36px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.82);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .panel-footnote {
   margin-top: 12px;
   font-size: 11px;
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.46);
+}
+
+#replay-dock {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  z-index: 23;
+  width: min(580px, calc(100vw - 140px));
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: rgba(4, 12, 26, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(16px);
+}
+
+.replay-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.replay-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.replay-status {
+  font-size: 12px;
+  color: #d7e8ff;
+  font-weight: 600;
+}
+
+.replay-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.replay-btn {
+  min-width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.07);
+  color: #eff7ff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+#replay-slider {
+  flex: 1;
+  accent-color: #63b3ff;
+}
+
+.replay-chip {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 11px;
+  color: #d6e8ff;
+  white-space: nowrap;
+}
+
+#labels-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.map-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(4, 12, 26, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(223, 238, 255, 0.78);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  backdrop-filter: blur(8px);
+  transition: opacity 0.15s ease;
+}
+
+#labels-layer.compact .map-label {
+  font-size: 9px;
+  padding: 3px 6px;
+}
+
+#quake-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 18;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle at center, rgba(255, 86, 86, 0.24), rgba(255, 86, 86, 0.06) 26%, transparent 62%);
+  transition: opacity 0.22s ease;
 }
 
 #recent-btn {
@@ -619,6 +769,21 @@ canvas.dragging {
 
 #recent-btn:active {
   transform: scale(0.90);
+}
+
+#recent-btn::before {
+  content: "Now";
+  position: absolute;
+  right: 60px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(4, 12, 26, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 #recent-panel {
@@ -752,6 +917,8 @@ canvas.dragging {
   border: 1px solid rgba(255, 255, 255, 0.13);
   box-shadow: 0 28px 90px rgba(0, 0, 0, 0.48);
   backdrop-filter: blur(20px);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.15) transparent;
 }
 
 .ic-handle {
@@ -944,11 +1111,15 @@ canvas.dragging {
     top: auto;
     left: 14px;
     right: 14px;
-    bottom: 88px;
+    bottom: 92px;
     transform: none;
     overflow-x: auto;
     justify-content: flex-start;
     padding: 6px;
+  }
+
+  .fbtn {
+    padding: 9px 12px;
   }
 
   #time-toggle {
@@ -980,8 +1151,20 @@ canvas.dragging {
     top: auto;
     left: 14px;
     right: 14px;
-    bottom: 224px;
+    bottom: 268px;
     width: auto;
+  }
+
+  #replay-dock {
+    left: 14px;
+    right: 14px;
+    bottom: 146px;
+    width: auto;
+    transform: none;
+  }
+
+  #recent-btn::before {
+    display: none;
   }
 
   #legend {
@@ -992,10 +1175,45 @@ canvas.dragging {
     right: 14px;
     bottom: 18px;
     max-width: 180px;
+    font-size: 9px;
+    line-height: 1.55;
   }
 }
 
 @media (max-width: 520px) {
+  #hud-inner {
+    gap: 14px;
+    padding: 16px 14px 22px;
+  }
+
+  #title-block h1 {
+    font-size: 18px;
+  }
+
+  #title-block .sub {
+    font-size: 9px;
+    letter-spacing: 0.09em;
+  }
+
+  .meta-row {
+    gap: 6px;
+  }
+
+  .meta-pill {
+    min-height: 28px;
+    padding: 6px 9px;
+  }
+
+  .stat-card {
+    min-width: 92px;
+    padding: 10px 12px;
+    border-radius: 16px;
+  }
+
+  .stat-val {
+    font-size: 20px;
+  }
+
   #infocard {
     width: min(420px, calc(100vw - 16px));
     max-height: min(78vh, 680px);
@@ -1006,9 +1224,33 @@ canvas.dragging {
     grid-template-columns: 1fr;
   }
 
+  .panel-subactions,
   .panel-actions,
+  .replay-controls,
   .ic-actions {
     flex-direction: column;
+  }
+
+  #replay-dock {
+    bottom: 150px;
+    padding: 10px 12px;
+  }
+
+  #insight-panel {
+    bottom: 260px;
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  #refresh-btn,
+  #time-toggle {
+    bottom: 156px;
+  }
+
+  #recent-btn {
+    width: 48px;
+    height: 48px;
+    bottom: 96px;
   }
 }
 </style>
@@ -1023,12 +1265,14 @@ canvas.dragging {
 
 <div id="app-chrome"></div>
 <div id="canvas-container"></div>
+<div id="labels-layer"></div>
+<div id="quake-flash"></div>
 
 <div id="hud-top">
   <div id="hud-inner">
     <div id="title-block">
       <h1>Seismic Globe</h1>
-      <div class="sub">USGS · Global seismic intelligence · <span id="time-range-label">Past 24 hours</span></div>
+      <div class="sub">USGS | Global seismic intelligence | <span id="time-range-label">Past 24 hours</span></div>
       <div class="meta-row">
         <div class="meta-pill">
           <span class="live-dot"></span>
@@ -1058,7 +1302,7 @@ canvas.dragging {
 </div>
 
 <button id="refresh-btn" type="button" title="Refresh data">
-  <span class="refresh-icon">↻</span>
+  <span class="refresh-icon">Refresh</span>
   <span>Refresh</span>
 </button>
 
@@ -1083,7 +1327,7 @@ canvas.dragging {
   <div class="panel-copy">Search by region, inspect the strongest event in view, and monitor feed freshness with automatic refresh.</div>
   <div class="search-shell">
     <input id="search-input" type="text" placeholder="Search place, region, or country">
-    <button class="mini-btn" id="clear-search" type="button" aria-label="Clear search">×</button>
+    <button class="mini-btn" id="clear-search" type="button" aria-label="Clear search">x</button>
   </div>
   <div class="panel-grid">
     <div class="panel-stat">
@@ -1114,6 +1358,10 @@ canvas.dragging {
     </div>
   </div>
   <div class="panel-footnote">Built from the live USGS feed with cinematic 3D rendering, fast interaction patterns, and portfolio-grade information design.</div>
+  <div class="panel-subactions">
+    <button class="panel-subaction" id="share-view" type="button">Share View</button>
+    <button class="panel-subaction" id="story-mode" type="button">Story Mode</button>
+  </div>
 </div>
 
 <div id="legend">
@@ -1132,7 +1380,19 @@ canvas.dragging {
   </div>
 </div>
 
-<div id="hint">Drag · Pinch to zoom<br>Tap marker for details</div>
+<div id="hint">Drag | Pinch to zoom<br>Tap marker for details</div>
+
+<div id="replay-dock">
+  <div class="replay-topline">
+    <div class="replay-title">Replay Timeline</div>
+    <div class="replay-status" id="replay-status">Ready to replay</div>
+  </div>
+  <div class="replay-controls">
+    <button class="replay-btn" id="replay-toggle" type="button">Play</button>
+    <input id="replay-slider" type="range" min="0" max="100" value="100">
+    <div class="replay-chip" id="replay-count">Live</div>
+  </div>
+</div>
 
 <div id="card-backdrop"></div>
 <div id="infocard">
@@ -1207,6 +1467,15 @@ canvas.dragging {
   const spotlightTypeEl = document.getElementById("spotlight-type");
   const focusLargestBtn = document.getElementById("focus-largest");
   const openLargestBtn = document.getElementById("open-largest");
+  const shareViewBtn = document.getElementById("share-view");
+  const storyModeBtn = document.getElementById("story-mode");
+  const replayToggleBtn = document.getElementById("replay-toggle");
+  const replaySlider = document.getElementById("replay-slider");
+  const replayStatusEl = document.getElementById("replay-status");
+  const replayCountEl = document.getElementById("replay-count");
+  const labelsLayer = document.getElementById("labels-layer");
+  const quakeFlash = document.getElementById("quake-flash");
+  labelsLayer.classList.toggle("compact", window.innerWidth <= 820);
 
   const container = document.getElementById("canvas-container");
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
@@ -1436,11 +1705,37 @@ canvas.dragging {
   let searchQuery = "";
   let featuredEq = null;
   let selectedEqId = null;
+  let replayActive = false;
+  let replayPlaying = false;
+  let replayAccumulator = 0;
+  let replayIndex = 0;
+  let replaySource = [];
+  let replaySubset = [];
+  let storyMode = false;
+  let dramaticFlashTimeout = null;
+  let cameraTargetZ = camera.position.z;
+  const focusState = { active: false, start: 0, duration: 1400, fromX: 0, fromY: 0, toX: 0, toY: 0, fromZ: 2.7, toZ: 2.2 };
   let activeFilters = new Set(["minor", "light", "moderate", "strong"]);
   const dotGroup = new THREE.Group();
   const selectionGroup = new THREE.Group();
   pivot.add(dotGroup);
   pivot.add(selectionGroup);
+  const regionLabels = [
+    { name: "North America", lat: 42, lon: -105 },
+    { name: "South America", lat: -18, lon: -60 },
+    { name: "Europe", lat: 50, lon: 15 },
+    { name: "Africa", lat: 8, lon: 20 },
+    { name: "Asia", lat: 33, lon: 95 },
+    { name: "Oceania", lat: -24, lon: 134 },
+    { name: "Pacific Ring", lat: 8, lon: 160 }
+  ];
+  const labelNodes = regionLabels.map(label => {
+    const el = document.createElement("div");
+    el.className = "map-label";
+    el.textContent = label.name;
+    labelsLayer.appendChild(el);
+    return { data: label, el };
+  });
 
   function ll2v(lat, lon, r) {
     const phi = (90 - lat) * Math.PI / 180;
@@ -1527,6 +1822,93 @@ canvas.dragging {
     autoRefreshStatusEl.textContent = "In " + mins + ":" + secs.toString().padStart(2, "0");
   }
 
+  function normalizeAngle(value) {
+    let angle = value;
+    while (angle > Math.PI) angle -= Math.PI * 2;
+    while (angle < -Math.PI) angle += Math.PI * 2;
+    return angle;
+  }
+
+  function focusEvent(eq, zoomOverride) {
+    if (!eq || !eq.geometry) return;
+    const lon = eq.geometry.coordinates[0];
+    const lat = eq.geometry.coordinates[1];
+    const targetY = normalizeAngle((-lon * Math.PI / 180) - Math.PI / 2);
+    const targetX = Math.max(-Math.PI * 0.42, Math.min(Math.PI * 0.42, lat * Math.PI / 180));
+    focusState.active = true;
+    focusState.start = performance.now();
+    focusState.fromX = pivot.rotation.x;
+    focusState.fromY = pivot.rotation.y;
+    focusState.toX = targetX;
+    focusState.toY = targetY;
+    focusState.fromZ = camera.position.z;
+    focusState.toZ = zoomOverride || Math.max(1.7, 2.55 - Math.min((eq.properties.mag || 0) * 0.11, 0.75));
+  }
+
+  function updateLabels() {
+    labelNodes.forEach(({ data, el }) => {
+      const world = ll2v(data.lat, data.lon, R + 0.22).clone();
+      world.applyMatrix4(pivot.matrixWorld);
+      const projected = world.project(camera);
+      const visible = projected.z < 1 && world.z < camera.position.z + 1.5;
+      const x = (projected.x * 0.5 + 0.5) * window.innerWidth;
+      const y = (-projected.y * 0.5 + 0.5) * window.innerHeight;
+      const facing = world.normalize().dot(camera.position.clone().normalize()) > -0.15;
+      if (!visible || !facing) {
+        el.style.opacity = "0";
+        return;
+      }
+      el.style.opacity = storyMode ? "0.96" : "0.78";
+      el.style.left = x.toFixed(1) + "px";
+      el.style.top = y.toFixed(1) + "px";
+    });
+  }
+
+  function triggerDramaticFlash(color) {
+    quakeFlash.style.background = "radial-gradient(circle at center, " + color + ", rgba(255, 86, 86, 0.08) 26%, transparent 62%)";
+    quakeFlash.style.opacity = "1";
+    if (dramaticFlashTimeout) window.clearTimeout(dramaticFlashTimeout);
+    dramaticFlashTimeout = window.setTimeout(() => {
+      quakeFlash.style.opacity = "0";
+    }, 420);
+  }
+
+  function getDisplayedData() {
+    return replayActive ? replaySubset : allEqData;
+  }
+
+  function updateReplayUi() {
+    if (!replaySource.length) {
+      replayStatusEl.textContent = "Ready to replay";
+      replayCountEl.textContent = "Live";
+      replaySlider.value = "100";
+      replayToggleBtn.textContent = "Play";
+      return;
+    }
+    if (!replayActive) {
+      replayStatusEl.textContent = "Live feed";
+      replayCountEl.textContent = currentRange === "day" ? "24h" : "7d";
+      replaySlider.value = "100";
+      replayToggleBtn.textContent = replayPlaying ? "Pause" : "Play";
+      return;
+    }
+    const pct = Math.round((replayIndex / Math.max(1, replaySource.length - 1)) * 100);
+    replaySlider.value = String(pct);
+    const event = replaySubset.length ? replaySubset[replaySubset.length - 1] : replaySource[0];
+    replayStatusEl.textContent = event ? new Date(event.properties.time).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "Replay";
+    replayCountEl.textContent = replaySubset.length + " events";
+    replayToggleBtn.textContent = replayPlaying ? "Pause" : "Play";
+  }
+
+  function applyReplayProgress(pct) {
+    if (!replaySource.length) return;
+    replayActive = true;
+    replayIndex = Math.max(0, Math.min(replaySource.length - 1, Math.round((pct / 100) * (replaySource.length - 1))));
+    replaySubset = replaySource.slice(0, replayIndex + 1);
+    buildDots(replaySubset);
+    updateReplayUi();
+  }
+
   function markerVisuals(mag, isMatch) {
     if (mag < 2.5) {
       return { core: 0.009, halo: 0.018, opacity: isMatch ? 0.94 : 0.12, haloOpacity: isMatch ? 0.18 : 0.04 };
@@ -1611,7 +1993,7 @@ canvas.dragging {
     spotlightMagEl.textContent = "M" + mag.toFixed(1);
     spotlightMagEl.style.color = magHex(mag);
     spotlightPlaceEl.textContent = featuredEq.properties.place || "Unknown location";
-    spotlightDepthEl.textContent = depthBand(depth) + " · " + depth.toFixed(1) + " km";
+    spotlightDepthEl.textContent = depthBand(depth) + "  |  " + depth.toFixed(1) + " km";
     spotlightTimeEl.textContent = "Event " + new Date(featuredEq.properties.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     spotlightTypeEl.textContent = searchQuery ? "Best match in focus" : "Largest in range";
     focusLargestBtn.disabled = false;
@@ -1674,6 +2056,14 @@ canvas.dragging {
     while (dotGroup.children.length) dotGroup.remove(dotGroup.children[0]);
     dotData = [];
     pulseRings = [];
+    if (!eqList.length) {
+      document.getElementById("sv-count").textContent = "0";
+      document.getElementById("sv-max").textContent = "-";
+      updateFeatured([]);
+      buildRecentPanel([]);
+      setSelectedMarker(null);
+      return;
+    }
 
     const visible = eqList.filter(eq => activeFilters.has(magCategory(eq.properties.mag || 0)));
     visible.sort((a, b) => (a.properties.mag || 0) - (b.properties.mag || 0));
@@ -1742,6 +2132,7 @@ canvas.dragging {
     const strong = eqList.filter(e => (e.properties.mag || 0) >= 6);
     if (strong.length > 0) {
       showAlert(strong.length + " strong quake" + (strong.length > 1 ? "s" : "") + " in range");
+      if (!replayActive) triggerDramaticFlash("rgba(255, 86, 86, 0.22)");
     }
 
     buildRecentPanel(eqList);
@@ -1750,11 +2141,17 @@ canvas.dragging {
   async function refreshData(range) {
     if (refreshInFlight) return;
     refreshInFlight = true;
+    replayPlaying = false;
     refreshBtn.classList.add("loading");
     document.getElementById("sv-count").textContent = "...";
     try {
       allEqData = await fetchEQ(range || currentRange);
+      replaySource = [...allEqData].sort((a, b) => (a.properties.time || 0) - (b.properties.time || 0));
+      replayActive = false;
+      replaySubset = [];
+      replayIndex = replaySource.length ? replaySource.length - 1 : 0;
       buildDots(allEqData);
+      updateReplayUi();
       nextRefreshAt = Date.now() + AUTO_REFRESH_MS;
       updateAutoRefreshLabel(Date.now());
     } catch (err) {
@@ -1769,6 +2166,9 @@ canvas.dragging {
   function openCard(eq) {
     currentEq = eq;
     selectedEqId = eq.id || null;
+    replayActive = false;
+    replayPlaying = false;
+    updateReplayUi();
     const p = eq.properties;
     const mag = (p.mag || 0).toFixed(1);
     const depthValue = eq.geometry.coordinates[2] || 0;
@@ -1808,6 +2208,8 @@ canvas.dragging {
     document.getElementById("ic-depth-bar").style.background = depthColor;
 
     setSelectedMarker(eq);
+    focusEvent(eq);
+    if ((p.mag || 0) >= 6) triggerDramaticFlash("rgba(255, 64, 64, 0.28)");
     infoCard.classList.add("open");
     cardBackdrop.classList.add("open");
     cardOpen = true;
@@ -1839,7 +2241,15 @@ canvas.dragging {
     requestAnimationFrame(animate);
     t += 0.016;
 
-    if (!isDragging) {
+    if (focusState.active) {
+      const elapsed = performance.now() - focusState.start;
+      const progress = Math.min(1, elapsed / focusState.duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      pivot.rotation.x = focusState.fromX + (focusState.toX - focusState.fromX) * eased;
+      pivot.rotation.y = focusState.fromY + normalizeAngle(focusState.toY - focusState.fromY) * eased;
+      camera.position.z = focusState.fromZ + (focusState.toZ - focusState.fromZ) * eased;
+      if (progress >= 1) focusState.active = false;
+    } else if (!isDragging) {
       velX *= DAMPING;
       velY *= DAMPING;
       const idle = Date.now() - lastInteract > AUTO_RESUME_MS;
@@ -1861,6 +2271,27 @@ canvas.dragging {
     auraMesh.material.opacity = 0.045 + ((Math.sin(t * 1.2) + 1) / 2) * 0.03;
     innerGlowMesh.material.opacity = 0.045 + ((Math.sin(t * 0.9 + 0.7) + 1) / 2) * 0.025;
     atmMat.uniforms.c.value = 0.46 + Math.sin(t * 0.8) * 0.03;
+    if (replayPlaying && replaySource.length) {
+      replayAccumulator += 0.016;
+      if (replayAccumulator >= 0.08) {
+        replayAccumulator = 0;
+        const nextIndex = Math.min(replaySource.length - 1, replayIndex + 1);
+        if (nextIndex !== replayIndex) {
+          replayIndex = nextIndex;
+          replaySubset = replaySource.slice(0, replayIndex + 1);
+          buildDots(replaySubset);
+          updateReplayUi();
+          const currentReplayEvent = replaySubset[replaySubset.length - 1];
+          if (currentReplayEvent && (currentReplayEvent.properties.mag || 0) >= 6) {
+            triggerDramaticFlash("rgba(255, 86, 86, 0.2)");
+          }
+        } else {
+          replayPlaying = false;
+          replayToggleBtn.textContent = "Play";
+        }
+      }
+    }
+    updateLabels();
 
     renderer.render(scene, camera);
   })();
@@ -1927,13 +2358,76 @@ canvas.dragging {
 
   focusLargestBtn.addEventListener("click", () => {
     if (!featuredEq) return;
-    selectedEqId = featuredEq.id || null;
-    setSelectedMarker(featuredEq);
+    focusEvent(featuredEq, 1.95);
     openCard(featuredEq);
   });
 
   openLargestBtn.addEventListener("click", () => {
     if (featuredEq) openCard(featuredEq);
+  });
+
+  replayToggleBtn.addEventListener("click", () => {
+    if (!replaySource.length) return;
+    if (!replayActive) {
+      applyReplayProgress(0);
+      replayPlaying = true;
+      replayAccumulator = 0;
+      replayToggleBtn.textContent = "Pause";
+      return;
+    }
+    replayPlaying = !replayPlaying;
+    replayToggleBtn.textContent = replayPlaying ? "Pause" : "Play";
+  });
+
+  replaySlider.addEventListener("input", () => {
+    replayPlaying = false;
+    replayToggleBtn.textContent = "Play";
+    applyReplayProgress(Number(replaySlider.value));
+  });
+
+  shareViewBtn.addEventListener("click", async () => {
+    try {
+      const dataUrl = canvas.toDataURL("image/png");
+      if (navigator.share && navigator.canShare) {
+        const res = await fetch(dataUrl);
+        const blob = await res.blob();
+        const file = new File([blob], "seismic-globe-view.png", { type: "image/png" });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ title: "Seismic Globe", text: "Live earthquake intelligence", files: [file] });
+          return;
+        }
+      }
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = "seismic-globe-view.png";
+      link.click();
+      showAlert("Snapshot downloaded", "rgba(40,110,80,0.92)");
+    } catch (err) {
+      showAlert("Could not export snapshot", "rgba(80,80,80,0.9)");
+    }
+  });
+
+  storyModeBtn.addEventListener("click", () => {
+    storyMode = !storyMode;
+    storyModeBtn.textContent = storyMode ? "Exit Story" : "Story Mode";
+    if (storyMode) {
+      if (featuredEq) {
+        focusEvent(featuredEq, 1.85);
+        openCard(featuredEq);
+      }
+      if (replaySource.length) {
+        applyReplayProgress(0);
+        replayPlaying = true;
+        replayAccumulator = 0;
+        replayToggleBtn.textContent = "Pause";
+      }
+    } else {
+      replayPlaying = false;
+      replayToggleBtn.textContent = "Play";
+      replayActive = false;
+      updateReplayUi();
+      buildDots(allEqData);
+    }
   });
 
   window.setInterval(() => {
@@ -2088,8 +2582,10 @@ canvas.dragging {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    labelsLayer.classList.toggle("compact", window.innerWidth <= 820);
   });
 })();
 </script>
 </body>
 </html>
+
