@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Seismic Globe</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23000a18'/%3E%3Cpath d='M10 34h12l4-8 6 16 6-12 4 4h12' fill='none' stroke='%23ff4455' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -369,15 +370,18 @@ earthTex = makeProceduralTex();
 setProgress('Fetching earthquake data…');
 
 // ── Globe mesh ──
-const globeMat = new THREE.MeshPhongMaterial({
+const globeMaterialOptions = {
   map: earthTex,
-  specularMap: specTex||undefined,
   specular: new THREE.Color(specTex ? 0x777777 : 0x1a3355),
   shininess: specTex ? 28 : 12,
-  emissiveMap: nightTex||undefined,
-  emissive: nightTex ? new THREE.Color(0xffffff) : undefined,
-  emissiveIntensity: 0.5,
-});
+};
+if (specTex) globeMaterialOptions.specularMap = specTex;
+if (nightTex) {
+  globeMaterialOptions.emissiveMap = nightTex;
+  globeMaterialOptions.emissive = new THREE.Color(0xffffff);
+  globeMaterialOptions.emissiveIntensity = 0.5;
+}
+const globeMat = new THREE.MeshPhongMaterial(globeMaterialOptions);
 const globe = new THREE.Mesh(new THREE.SphereGeometry(R, 80, 80), globeMat);
 
 // Cloud layer
@@ -426,7 +430,9 @@ scene.add(new THREE.AmbientLight(0x112244, 0.5));
 const sun = new THREE.DirectionalLight(0xfff5e0, 2.4);
 sun.position.set(5, 2, 4);
 scene.add(sun);
-scene.add(Object.assign(new THREE.DirectionalLight(0x001855, 0.4), { position: new THREE.Vector3(-4,-1,-3) }));
+const fillLight = new THREE.DirectionalLight(0x001855, 0.4);
+fillLight.position.set(-4, -1, -3);
+scene.add(fillLight);
 
 // Start rendering immediately so globe is visible
 let t=0, isDragging=false, prev={x:0,y:0}, velX=0, velY=0, lastInteract=0;
