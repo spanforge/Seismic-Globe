@@ -1994,7 +1994,11 @@ canvas.dragging {
         searchInput.value = preset.query;
         buildDots(getDisplayedData());
         updateUrlState();
-        if (featuredEq) focusEvent(featuredEq, 1.95);
+        if (featuredEq) {
+          focusEvent(featuredEq, 1.95);
+        } else {
+          showAlert("No recorded events right now for " + preset.label, "rgba(80,80,80,0.92)");
+        }
       });
       presetRow.appendChild(btn);
     });
